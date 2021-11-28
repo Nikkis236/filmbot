@@ -11,5 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ParsedCommand {
     Command command = Command.NONE;
-    String text="";
+    String text = "";
 }

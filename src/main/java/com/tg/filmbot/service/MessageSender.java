@@ -6,12 +6,11 @@ import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendSticker;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 public class MessageSender implements Runnable {
     private static final Logger log = Logger.getLogger(MessageSender.class);
     private final int SENDER_SLEEP_TIME = 1000;
-    private Bot bot;
+    private final Bot bot;
 
     public MessageSender(Bot bot) {
         this.bot = bot;

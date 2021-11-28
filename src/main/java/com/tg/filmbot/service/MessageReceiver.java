@@ -4,9 +4,7 @@ import com.tg.filmbot.bot.Bot;
 import com.tg.filmbot.command.Command;
 import com.tg.filmbot.command.ParsedCommand;
 import com.tg.filmbot.command.Parser;
-import com.tg.filmbot.handler.AbstractHandler;
-import com.tg.filmbot.handler.DefaultHandler;
-import com.tg.filmbot.handler.SystemHandler;
+import com.tg.filmbot.handler.*;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -15,8 +13,8 @@ import org.telegram.telegrambots.api.objects.Update;
 public class MessageReceiver implements Runnable {
     private static final Logger log = Logger.getLogger(MessageReceiver.class);
     private final int WAIT_FOR_NEW_MESSAGE_DELAY = 1000;
-    private Bot bot;
-    private Parser parser;
+    private final Bot bot;
+    private final Parser parser;
 
     public MessageReceiver(Bot bot) {
         this.bot = bot;
@@ -28,7 +26,7 @@ public class MessageReceiver implements Runnable {
         log.info("[STARTED] MsgReciever.  Bot class: " + bot);
         while (true) {
             for (Object object = bot.receiveQueue.poll(); object != null; object = bot.receiveQueue.poll()) {
-                log.debug("New object for analyze in queue " + object.toString());
+                log.debug("New object for analyze in queue " + object);
                 analyze(object);
             }
             try {
@@ -43,7 +41,7 @@ public class MessageReceiver implements Runnable {
     private void analyze(Object object) {
         if (object instanceof Update) {
             Update update = (Update) object;
-            log.debug("Update recieved: " + update.toString());
+            log.debug("Update recieved: " + update);
             analyzeForUpdateType(update);
         } else log.warn("Cant operate type of object: " + object.toString());
     }
@@ -74,10 +72,18 @@ public class MessageReceiver implements Runnable {
             case START:
             case HELP:
                 SystemHandler systemHandler = new SystemHandler(bot);
-                log.info("Handler for command[" + command.toString() + "] is: " + systemHandler);
+                log.info("Handler for command[" + command + "] is: " + systemHandler);
                 return systemHandler;
+            case GENRES:
+            case GENRE:
+                return new GenreHandler(bot);
+            case POPULAR:
+            case MOVIE:
+                return new MovieHandler(bot);
+            case TOPPERSONS:
+                return new PersonHandler(bot);
             default:
-                log.info("Handler for command[" + command.toString() + "] not Set. Return DefaultHandler");
+                log.info("Handler for command[" + command + "] not Set. Return DefaultHandler");
                 return new DefaultHandler(bot);
         }
     }

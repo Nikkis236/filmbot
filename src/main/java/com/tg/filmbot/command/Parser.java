@@ -8,7 +8,7 @@ public class Parser {
     private static final Logger log = Logger.getLogger(Parser.class);
     private final String PREFIX_FOR_COMMAND = "/";
     private final String DELIMITER_COMMAND_BOTNAME = "@";
-    private String botName;
+    private final String botName;
 
     public Parser(String botName) {
         this.botName = botName;
@@ -59,7 +59,13 @@ public class Parser {
         if (trimText.contains(" ")) {
             int indexOfSpace = trimText.indexOf(" ");
             commandText = new Pair<>(trimText.substring(0, indexOfSpace), trimText.substring(indexOfSpace + 1));
-        } else commandText = new Pair<>(trimText, "");
+        } else if (trimText.contains("_")) {
+            int indexOfUnderscore = trimText.indexOf("_");
+            commandText = new Pair<>(trimText.substring(0, indexOfUnderscore), trimText.substring(indexOfUnderscore + 1));
+        } else {
+            commandText = new Pair<>(trimText, "");
+        }
+
         return commandText;
     }
 

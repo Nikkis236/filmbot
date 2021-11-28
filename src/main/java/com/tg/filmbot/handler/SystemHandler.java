@@ -40,6 +40,8 @@ public class SystemHandler extends AbstractHandler {
         text.append("*This is help message*").append(END_LINE).append(END_LINE);
         text.append("[/start](/start) - show start message").append(END_LINE);
         text.append("[/help](/help) - show help message").append(END_LINE);
+        text.append("[/popular](/popular) - show popular movies").append(END_LINE);
+        text.append("[/genres](/genres) - show genres").append(END_LINE);
 
 
         sendMessage.setText(text.toString());
