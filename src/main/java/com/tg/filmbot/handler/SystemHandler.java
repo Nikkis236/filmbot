@@ -61,10 +61,20 @@ public class SystemHandler extends AbstractHandler {
         replyKeyboardMarkup.setOneTimeKeyboard(false);
 
         List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
-        keyboardFirstRow.add(new KeyboardButton("/popular"));
+        KeyboardRow popularFilmsKey = new KeyboardRow();
+        KeyboardRow helpKey = new KeyboardRow();
+        KeyboardRow genresKey = new KeyboardRow();
+        KeyboardRow personsKey = new KeyboardRow();
 
-        keyboard.add(keyboardFirstRow);
+        popularFilmsKey.add(new KeyboardButton("/popular"));
+        helpKey.add(new KeyboardButton("/help"));
+        genresKey.add(new KeyboardButton("/genres"));
+        personsKey.add(new KeyboardButton("/toppersons"));
+
+        keyboard.add(popularFilmsKey);
+        keyboard.add(helpKey);
+        keyboard.add(genresKey);
+        keyboard.add(personsKey);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
         return sendMessage;

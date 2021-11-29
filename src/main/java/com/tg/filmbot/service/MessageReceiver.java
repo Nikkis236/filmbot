@@ -11,8 +11,6 @@ import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 
-import java.util.Objects;
-import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -74,6 +72,7 @@ public class MessageReceiver implements Runnable {
 
         AbstractHandler handlerForCommand = getHandlerForCommand(parsedCommand.getCommand());
 
+        System.out.println("CHAT: "+ chatId);
         String operationResult = handlerForCommand.operate(String.valueOf(chatId), parsedCommand, update);
 
         if (!"".equals(operationResult)) {

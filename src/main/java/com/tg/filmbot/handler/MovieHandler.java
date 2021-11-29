@@ -14,6 +14,7 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +114,7 @@ public class MovieHandler extends AbstractHandler {
 
         for (Genre genre : movie.getGenres()) {
             text.append(genre.getName())
-                    .append(" [/genre_").append(genre.getId()).append("](/genre_").append(genre.getId()).append(")) ");
+                    .append(" [/genre_").append(genre.getId()).append("]((/genre_").append(genre.getId()).append(")) ");
         }
 
         if (movie.getCredits() != null) {
