@@ -7,6 +7,12 @@ import com.tg.filmbot.command.ParsedCommand;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SystemHandler extends AbstractHandler {
     private static final Logger log = Logger.getLogger(SystemHandler.class);
@@ -45,6 +51,22 @@ public class SystemHandler extends AbstractHandler {
 
 
         sendMessage.setText(text.toString());
+
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setOneTimeKeyboard(false);
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow keyboardFirstRow = new KeyboardRow();
+        keyboardFirstRow.add(new KeyboardButton("/popular"));
+
+        keyboard.add(keyboardFirstRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboard);
         return sendMessage;
     }
 

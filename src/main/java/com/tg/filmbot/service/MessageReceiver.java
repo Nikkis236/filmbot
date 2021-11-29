@@ -7,7 +7,14 @@ import com.tg.filmbot.command.Parser;
 import com.tg.filmbot.handler.*;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.CallbackQuery;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 
 public class MessageReceiver implements Runnable {
@@ -47,13 +54,27 @@ public class MessageReceiver implements Runnable {
     }
 
     private void analyzeForUpdateType(Update update) {
-        Long chatId = update.getMessage().getChatId();
-        String inputText = update.getMessage().getText();
+        final Long chatId = ofNullable(update.getMessage())
+                .map(Message::getChatId)
+                .orElse(
+                        ofNullable(update.getCallbackQuery())
+                                .map(CallbackQuery::getMessage)
+                                .map(Message::getChatId)
+                                .orElse(0L));
+        final String inputText = ofNullable(update.getMessage())
+                .map(Message::getText)
+                .orElse("");
 
-        ParsedCommand parsedCommand = parser.getParsedCommand(inputText);
+        ParsedCommand parsedCommand;
+        if (update.hasCallbackQuery()) {
+            parsedCommand = parser.getParsedCommand(update.getCallbackQuery().getData());
+        } else {
+            parsedCommand = parser.getParsedCommand(inputText);
+        }
+
         AbstractHandler handlerForCommand = getHandlerForCommand(parsedCommand.getCommand());
 
-        String operationResult = handlerForCommand.operate(chatId.toString(), parsedCommand, update);
+        String operationResult = handlerForCommand.operate(String.valueOf(chatId), parsedCommand, update);
 
         if (!"".equals(operationResult)) {
             SendMessage message = new SendMessage();

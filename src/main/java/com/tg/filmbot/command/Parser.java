@@ -16,10 +16,12 @@ public class Parser {
 
     public ParsedCommand getParsedCommand(String text) {
         String trimText = "";
-        if (text != null) trimText = text.trim();
+        if (text != null)
+            trimText = text.trim();
         ParsedCommand result = new ParsedCommand(Command.NONE, trimText);
 
-        if ("".equals(trimText)) return result;
+        if ("".equals(trimText))
+            return result;
         Pair<String, String> commandAndText = getDelimitedCommandFromText(trimText);
         if (isCommand(commandAndText.getKey())) {
             if (isCommandForMe(commandAndText.getKey())) {
@@ -79,5 +81,9 @@ public class Parser {
 
     private boolean isCommand(String text) {
         return text.startsWith(PREFIX_FOR_COMMAND);
+    }
+
+    public ParsedCommand parseCallBack(String data) {
+        return null;
     }
 }

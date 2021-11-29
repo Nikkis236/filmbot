@@ -12,10 +12,18 @@ import info.movito.themoviedbapi.model.people.PersonCast;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MovieHandler extends AbstractHandler {
     private static final Logger log = Logger.getLogger(SystemHandler.class);
     private final String END_LINE = "\n";
+    private static int popularMoviePage = 1;
+    private static final String PREV = "/popular_next";
+    private static final String NEXT = "/popular_prev";
 
     public MovieHandler(Bot bot) {
         super(bot);
@@ -23,6 +31,18 @@ public class MovieHandler extends AbstractHandler {
 
     @Override
     public String operate(String chatId, ParsedCommand parsedCommand, Update update) {
+        if(update.hasCallbackQuery()){
+            String callData = update.getCallbackQuery().getData();
+            switch (callData){
+                case NEXT:
+                    popularMoviePage++;
+                    getMessagePopular(chatId);
+                    break;
+                case PREV:
+                    popularMoviePage--;
+                    getMessagePopular(chatId);
+            }
+        }
         Command command = parsedCommand.getCommand();
 
         switch (command) {
@@ -45,7 +65,7 @@ public class MovieHandler extends AbstractHandler {
         StringBuilder text = new StringBuilder().append("Популярное сейчас:").append(END_LINE);
 
         TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
-        MovieResultsPage moviePage = movies.getPopularMovies("ru", 1);
+        MovieResultsPage moviePage = movies.getPopularMovies("ru", popularMoviePage);
         for (MovieDb movie : moviePage.getResults()) {
             text.append("-")
                     .append(movie.getTitle())
@@ -55,6 +75,19 @@ public class MovieHandler extends AbstractHandler {
                     .append(" [/movie_").append(movie.getId()).append("](/movie_").append(movie.getId()).append("))")
                     .append(END_LINE);
         }
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+        if(popularMoviePage != 1){
+            rowInline.add(new InlineKeyboardButton().setText("<< Назад").setCallbackData(PREV));
+        }
+        rowInline.add(new InlineKeyboardButton().setText("Далее >>").setCallbackData(NEXT));
+
+        rowsInline.add(rowInline);
+
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
 
         return sendMessage.setText(text.toString());
     }
