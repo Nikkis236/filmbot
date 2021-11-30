@@ -3,7 +3,9 @@ package com.tg.filmbot;
 import com.tg.filmbot.bot.Bot;
 import com.tg.filmbot.service.MessageReceiver;
 import com.tg.filmbot.service.MessageSender;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.apache.log4j.Logger;
 
@@ -16,6 +18,7 @@ public class FilmbotApplication {
 
 	public static void main(String[] args) {
 		ApiContextInitializer.init();
+		SpringApplication.run(FilmbotApplication.class, args);
 		Bot filmBot = new Bot("film_bot", "2094811461:AAFtuxRwfKMyaLEg5C3fNXiwVnAh4HeNPUI");
 
 
@@ -35,6 +38,7 @@ public class FilmbotApplication {
 		sender.setName("MsgSender");
 		sender.setPriority(PRIORITY_FOR_SENDER);
 		sender.start();
-	}
 
+
+	}
 }

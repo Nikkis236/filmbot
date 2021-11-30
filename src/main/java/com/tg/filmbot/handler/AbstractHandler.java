@@ -3,8 +3,10 @@ package com.tg.filmbot.handler;
 
 import com.tg.filmbot.bot.Bot;
 import com.tg.filmbot.command.ParsedCommand;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.objects.Update;
 
+@Component
 public abstract class AbstractHandler {
     Bot bot;
 

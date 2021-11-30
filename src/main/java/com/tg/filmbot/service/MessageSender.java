@@ -3,10 +3,12 @@ package com.tg.filmbot.service;
 
 import com.tg.filmbot.bot.Bot;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendSticker;
 import org.telegram.telegrambots.api.objects.Message;
 
+@Component
 public class MessageSender implements Runnable {
     private static final Logger log = Logger.getLogger(MessageSender.class);
     private final int SENDER_SLEEP_TIME = 1000;

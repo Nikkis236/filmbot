@@ -1,12 +1,12 @@
 package com.tg.filmbot.bot;
 
 
-import com.tg.filmbot.handler.MovieHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Component
 public class Bot extends TelegramLongPollingBot {
     private static final Logger log = Logger.getLogger(Bot.class);
     private final int RECONNECT_PAUSE = 10000;

@@ -6,6 +6,7 @@ import com.tg.filmbot.command.ParsedCommand;
 import com.tg.filmbot.command.Parser;
 import com.tg.filmbot.handler.*;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
@@ -14,7 +15,7 @@ import org.telegram.telegrambots.api.objects.Update;
 
 import static java.util.Optional.ofNullable;
 
-
+@Component
 public class MessageReceiver implements Runnable {
     private static final Logger log = Logger.getLogger(MessageReceiver.class);
     private final int WAIT_FOR_NEW_MESSAGE_DELAY = 1000;
@@ -72,7 +73,6 @@ public class MessageReceiver implements Runnable {
 
         AbstractHandler handlerForCommand = getHandlerForCommand(parsedCommand.getCommand());
 
-        System.out.println("CHAT: "+ chatId);
         String operationResult = handlerForCommand.operate(String.valueOf(chatId), parsedCommand, update);
 
         if (!"".equals(operationResult)) {
