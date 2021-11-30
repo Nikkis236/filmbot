@@ -3,6 +3,8 @@ package com.tg.filmbot.handler;
 import com.tg.filmbot.bot.Bot;
 import com.tg.filmbot.command.Command;
 import com.tg.filmbot.command.ParsedCommand;
+import com.tg.filmbot.dao.BookMarkDAO;
+import com.tg.filmbot.dao.DAOProvider;
 import com.tg.filmbot.entity.Bookmark;
 import com.tg.filmbot.repository.BookmarkRepo;
 import info.movito.themoviedbapi.TmdbApi;
@@ -33,8 +35,7 @@ public class MovieHandler extends AbstractHandler {
     private static int popularMoviePage = 1;
     private static final String END_LINE = "\n";
 
-    @Autowired
-    BookmarkRepo repository ;
+    private DAOProvider provider = DAOProvider.getInstance();
 
     public MovieHandler(Bot bot) {
         super(bot);
@@ -84,7 +85,8 @@ public class MovieHandler extends AbstractHandler {
         sendMessage.setChatId(chatId);
         sendMessage.enableMarkdown(true);
 
-        repository.save(new Bookmark(chatId, movieId));
+        BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
+        bookmarkDAO.save(new Bookmark(chatId, movieId));
 
         return sendMessage;
     }

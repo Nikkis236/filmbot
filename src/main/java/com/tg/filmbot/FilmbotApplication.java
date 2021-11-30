@@ -1,6 +1,8 @@
 package com.tg.filmbot;
 
 import com.tg.filmbot.bot.Bot;
+import com.tg.filmbot.dao.connection.ConnectionPoolException;
+import com.tg.filmbot.dao.connection.PoolProvider;
 import com.tg.filmbot.service.MessageReceiver;
 import com.tg.filmbot.service.MessageSender;
 import org.springframework.boot.SpringApplication;
@@ -16,8 +18,9 @@ public class FilmbotApplication {
 	private static final int PRIORITY_FOR_SENDER = 1;
 	private static final int PRIORITY_FOR_RECEIVER = 3;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ConnectionPoolException {
 		ApiContextInitializer.init();
+		PoolProvider.getConnectionPool().init("db");
 		SpringApplication.run(FilmbotApplication.class, args);
 		Bot filmBot = new Bot("film_bot", "2094811461:AAFtuxRwfKMyaLEg5C3fNXiwVnAh4HeNPUI");
 
