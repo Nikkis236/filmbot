@@ -26,8 +26,8 @@ import java.util.List;
 public class MovieHandler extends AbstractHandler {
     private static final Logger log = Logger.getLogger(MovieHandler.class);
 
-    private static final String PREV = "/popular_next";
-    private static final String NEXT = "/popular_prev";
+    private static final String PREV = "/popular_prev";
+    private static final String NEXT = "/popular_next";
     private static final String BOOKMARK = "/movie_bookmark";
 
     private static int popularMoviePage = 1;
@@ -54,11 +54,11 @@ public class MovieHandler extends AbstractHandler {
             switch (command) {
                 case NEXT:
                     popularMoviePage++;
-                    getMessagePopular(chatId);
+                    bot.sendQueue.add(getMessagePopular(chatId));
                     break;
                 case PREV:
                     popularMoviePage--;
-                    getMessagePopular(chatId);
+                    bot.sendQueue.add(getMessagePopular(chatId));
                     break;
                 case BOOKMARK:
                     bot.sendQueue.add(addToBookmark(chatId, info));
