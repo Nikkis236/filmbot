@@ -8,8 +8,10 @@ import com.tg.filmbot.dao.DAOProvider;
 import com.tg.filmbot.entity.Bookmark;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
+import info.movito.themoviedbapi.model.Artwork;
 import info.movito.themoviedbapi.model.Genre;
 import info.movito.themoviedbapi.model.MovieDb;
+import info.movito.themoviedbapi.model.MovieImages;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import org.apache.log4j.Logger;
@@ -29,6 +31,7 @@ public class MovieHandler extends AbstractHandler {
     private static final String PREV = "/popular_prev";
     private static final String NEXT = "/popular_next";
     private static final String BOOKMARK = "/movie_bookmark";
+    private static final String SIMILAR = "/movie_similar";
 
     private static int popularMoviePage = 1;
     private static final String END_LINE = "\n";
@@ -62,6 +65,8 @@ public class MovieHandler extends AbstractHandler {
                     break;
                 case BOOKMARK:
                     bot.sendQueue.add(addToBookmark(chatId, info));
+                case SIMILAR:
+                    bot.sendQueue.add(getMessageSimilarMovies(chatId,info));
             }
         } else {
             Command command = parsedCommand.getCommand();
@@ -80,11 +85,35 @@ public class MovieHandler extends AbstractHandler {
         }
         return "";
     }
+A
+    private Object getMessageSimilarMovies(String chatId, String info) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.enableMarkdown(true);
+
+        StringBuilder text = new StringBuilder().append("Похожие фильмы :").append(END_LINE);
+
+        TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+        MovieResultsPage moviePage = movies
+                .getSimilarMovies(Integer.parseInt(info),"ru", 1);
+        for (MovieDb movie : moviePage.getResults()) {
+            text.append("-")
+                    .append(movie.getTitle())
+                    .append(" (")
+                    .append(movie.getReleaseDate()).append(", ")
+                    .append(movie.getVoteAverage()).append(", ")
+                    .append(" [/movie_").append(movie.getId()).append("](/movie_").append(movie.getId()).append("))")
+                    .append(END_LINE);
+        }
+
+        return sendMessage.setText(text.toString());
+    }
 
     private Object getBookmarksMovie(String chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.enableMarkdown(true);
+
 
         BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
         List<String> allMovieByChat = bookmarkDAO.getAllMovieByChat(chatId);
@@ -168,12 +197,12 @@ public class MovieHandler extends AbstractHandler {
 
         StringBuilder text = new StringBuilder();
         text.append(movie.getTitle()).append(END_LINE)
-                .append("Рейтинг: ").append(movie.getVoteAverage()).append(END_LINE)
-                .append("Дата выхода: ").append(movie.getReleaseDate()).append(END_LINE)
-                .append("Бюджет ").append(movie.getBudget()).append(END_LINE)
-                .append("Сборы ").append(movie.getRevenue()).append(END_LINE)
+                .append("⭐ ").append(movie.getVoteAverage()).append(END_LINE)
+                .append("\uD83D\uDCC5 ").append(movie.getReleaseDate()).append(END_LINE)
+                .append("Бюджет: ").append(movie.getBudget()).append(END_LINE)
+                .append("Сборы: ").append(movie.getRevenue()).append(END_LINE)
                 .append(movie.getOverview()).append(END_LINE)
-                .append("Жанры: ");
+                .append("\uD83C\uDFAD ");
 
         for (Genre genre : movie.getGenres()) {
             text.append(genre.getName())
@@ -191,7 +220,10 @@ public class MovieHandler extends AbstractHandler {
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Добавить в закладки").setCallbackData(BOOKMARK + "&" + parsedCommand.getText()));
+        rowInline.add(new InlineKeyboardButton().setText("Добавить в закладки \uD83D\uDCD5")
+                .setCallbackData(BOOKMARK + "&" + parsedCommand.getText()));
+        rowInline.add(new InlineKeyboardButton().setText("Найти похожие фильмы \uD83D\uDD0D")
+                .setCallbackData(SIMILAR + "&" + parsedCommand.getText()));
         rowsInline.add(rowInline);
 
         markupInline.setKeyboard(rowsInline);
