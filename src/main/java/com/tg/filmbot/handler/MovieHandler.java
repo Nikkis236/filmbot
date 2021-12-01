@@ -85,7 +85,7 @@ public class MovieHandler extends AbstractHandler {
         }
         return "";
     }
-A
+
     private Object getMessageSimilarMovies(String chatId, String info) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
