@@ -6,7 +6,6 @@ import com.tg.filmbot.command.ParsedCommand;
 import com.tg.filmbot.dao.BookMarkDAO;
 import com.tg.filmbot.dao.DAOProvider;
 import com.tg.filmbot.entity.Bookmark;
-import com.tg.filmbot.repository.BookmarkRepo;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.Genre;
@@ -14,7 +13,6 @@ import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -75,9 +73,40 @@ public class MovieHandler extends AbstractHandler {
                 case MOVIE:
                     bot.sendQueue.add(getMessageMovie(chatId, parsedCommand));
                     break;
+                case BOOKMARKS:
+                    bot.sendQueue.add(getBookmarksMovie(chatId));
+                    break;
             }
         }
         return "";
+    }
+
+    private Object getBookmarksMovie(String chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.enableMarkdown(true);
+
+        BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
+        List<String> allMovieByChat = bookmarkDAO.getAllMovieByChat(chatId);
+        if (allMovieByChat.isEmpty()) {
+           return sendMessage.setText("Ваши закладки пока поусты. Добавьте фильмы :)-");
+        } else {
+            StringBuilder text = new StringBuilder().append("Ваши закладки:").append(END_LINE);
+
+            TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+            for (String movieId : allMovieByChat) {
+                MovieDb moviePage = movies.getMovie(Integer.parseInt(movieId), "ru");
+                text.append("-")
+                        .append(moviePage.getTitle())
+                        .append(" (")
+                        .append(moviePage.getReleaseDate()).append(", ")
+                        .append(moviePage.getVoteAverage()).append(", ")
+                        .append(" [/movie_").append(moviePage.getId()).append("](/movie_").append(moviePage.getId()).append("))")
+                        .append(END_LINE);
+
+            }
+            return sendMessage.setText(text.toString());
+        }
     }
 
     private SendMessage addToBookmark(String chatId, String movieId) {

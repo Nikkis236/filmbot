@@ -9,5 +9,6 @@ public enum Command {
     GENRE,
     GENRES,
     TOPPERSONS,
+    BOOKMARKS,
     START
 }

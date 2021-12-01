@@ -98,6 +98,7 @@ public class MessageReceiver implements Runnable {
             case GENRE:
                 return new GenreHandler(bot);
             case POPULAR:
+            case BOOKMARKS:
             case MOVIE:
                 return new MovieHandler(bot);
             case TOPPERSONS:
