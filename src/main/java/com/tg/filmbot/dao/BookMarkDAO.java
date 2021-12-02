@@ -21,7 +21,9 @@ public class BookMarkDAO {
     private static final Logger logger = LogManager.getLogger(BookMarkDAO.class);
 
     private static final String SAVE = "insert into bot.user_bookmark(chat_id, movie_id) values(?,?)";
-    private static final String GET_MOVIE = "select distinct ub.movie_id from bot.user_BOOKMARK ub   where chat_id = ?";
+    private static final String GET_MOVIE = "select distinct ub.movie_id from bot.user_bookmark ub   where chat_id = ?";
+    private static final String IS_IN_BOOKMARK = "select * from bot.user_bookmark ub where chat_id = ? and movie_id = ?";
+    private static final String REMOVE_BOOKMARK = "delete from bot.user_bookmark where chat_id = ? and movie_id = ?";
 
     private final ConnectionPool connectionPool = PoolProvider.getConnectionPool();
 
@@ -48,7 +50,7 @@ public class BookMarkDAO {
         }
     }
 
-    public List<String> getAllMovieByChat(String chatId){
+    public List<String> getAllMovieByChat(String chatId) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -72,9 +74,57 @@ public class BookMarkDAO {
         return Collections.emptyList();
     }
 
+    public boolean isInBookmarks(String chatId, String movieId) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = connectionPool.getConnection();
+            preparedStatement = connection.prepareStatement(IS_IN_BOOKMARK);
+            preparedStatement.setString(1, chatId);
+            preparedStatement.setString(2, movieId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException | ConnectionPoolException e) {
+            logger.log(Level.ERROR, e);
+        } finally {
+            connectionPool.releaseConnection(connection);
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    logger.log(Level.ERROR, e);
+                }
+            }
+        }
+        return false;
+    }
+
+    public void deleteBookmark(String chatId, String movieId) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = connectionPool.getConnection();
+            preparedStatement = connection.prepareStatement(REMOVE_BOOKMARK);
+            preparedStatement.setString(1, chatId);
+            preparedStatement.setString(2, movieId);
+            preparedStatement.execute();
+        } catch (SQLException | ConnectionPoolException e) {
+            logger.log(Level.ERROR, e);
+        } finally {
+            connectionPool.releaseConnection(connection);
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    logger.log(Level.ERROR, e);
+                }
+            }
+        }
+    }
+
     private List<String> convertToMovies(ResultSet resultSet) throws SQLException {
         List<String> movies = new ArrayList<>();
-        while (resultSet.next()){
+        while (resultSet.next()) {
             movies.add(resultSet.getString(1));
         }
         return movies;

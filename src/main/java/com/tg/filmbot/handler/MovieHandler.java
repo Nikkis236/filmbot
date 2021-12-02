@@ -8,10 +8,8 @@ import com.tg.filmbot.dao.DAOProvider;
 import com.tg.filmbot.entity.Bookmark;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
-import info.movito.themoviedbapi.model.Artwork;
 import info.movito.themoviedbapi.model.Genre;
 import info.movito.themoviedbapi.model.MovieDb;
-import info.movito.themoviedbapi.model.MovieImages;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import org.apache.log4j.Logger;
@@ -32,6 +30,7 @@ public class MovieHandler extends AbstractHandler {
     private static final String NEXT = "/popular_next";
     private static final String BOOKMARK = "/movie_bookmark";
     private static final String SIMILAR = "/movie_similar";
+    private static final String BOOKMARK_REMOVE = " /movie_bookmarkRemove";
 
     private static int popularMoviePage = 1;
     private static final String END_LINE = "\n";
@@ -65,8 +64,12 @@ public class MovieHandler extends AbstractHandler {
                     break;
                 case BOOKMARK:
                     bot.sendQueue.add(addToBookmark(chatId, info));
+                    break;
+                case BOOKMARK_REMOVE:
+                    bot.sendQueue.add(removeFromBookmark(chatId, info));
+                    break;
                 case SIMILAR:
-                    bot.sendQueue.add(getMessageSimilarMovies(chatId,info));
+                    bot.sendQueue.add(getMessageSimilarMovies(chatId, info));
             }
         } else {
             Command command = parsedCommand.getCommand();
@@ -86,6 +89,27 @@ public class MovieHandler extends AbstractHandler {
         return "";
     }
 
+    private Object removeFromBookmark(String chatId, String movieId) {
+        BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
+        bookmarkDAO.deleteBookmark(chatId, movieId);
+
+        ParsedCommand parsedCommand = new ParsedCommand();
+        parsedCommand.setText(movieId);
+
+        return getMessageMovie(chatId, parsedCommand);
+    }
+
+    private SendMessage addToBookmark(String chatId, String movieId) {
+        BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
+        bookmarkDAO.save(new Bookmark(chatId, movieId));
+
+        ParsedCommand parsedCommand = new ParsedCommand();
+        parsedCommand.setText(movieId);
+
+        return getMessageMovie(chatId, parsedCommand);
+    }
+
+
     private Object getMessageSimilarMovies(String chatId, String info) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -95,7 +119,7 @@ public class MovieHandler extends AbstractHandler {
 
         TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
         MovieResultsPage moviePage = movies
-                .getSimilarMovies(Integer.parseInt(info),"ru", 1);
+                .getSimilarMovies(Integer.parseInt(info), "ru", 1);
         for (MovieDb movie : moviePage.getResults()) {
             text.append("-")
                     .append(movie.getTitle())
@@ -118,7 +142,7 @@ public class MovieHandler extends AbstractHandler {
         BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
         List<String> allMovieByChat = bookmarkDAO.getAllMovieByChat(chatId);
         if (allMovieByChat.isEmpty()) {
-           return sendMessage.setText("Ваши закладки пока поусты. Добавьте фильмы :)-");
+            return sendMessage.setText("Ваши закладки пока поусты. Добавьте фильмы :)-");
         } else {
             StringBuilder text = new StringBuilder().append("Ваши закладки:").append(END_LINE);
 
@@ -137,18 +161,6 @@ public class MovieHandler extends AbstractHandler {
             return sendMessage.setText(text.toString());
         }
     }
-
-    private SendMessage addToBookmark(String chatId, String movieId) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.enableMarkdown(true);
-
-        BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
-        bookmarkDAO.save(new Bookmark(chatId, movieId));
-
-        return sendMessage;
-    }
-
 
     private SendMessage getMessagePopular(String chatID) {
         SendMessage sendMessage = new SendMessage();
@@ -220,8 +232,16 @@ public class MovieHandler extends AbstractHandler {
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Добавить в закладки \uD83D\uDCD5")
-                .setCallbackData(BOOKMARK + "&" + parsedCommand.getText()));
+
+        BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
+        if (bookmarkDAO.isInBookmarks(chatID, String.valueOf(movie.getId()))) {
+            rowInline.add(new InlineKeyboardButton().setText("Удалить из закладок ❌")
+                    .setCallbackData(BOOKMARK_REMOVE + "&" + parsedCommand.getText()));
+        } else {
+            rowInline.add(new InlineKeyboardButton().setText("Добавить в закладки \uD83D\uDCD5")
+                    .setCallbackData(BOOKMARK + "&" + parsedCommand.getText()));
+        }
+
         rowInline.add(new InlineKeyboardButton().setText("Найти похожие фильмы \uD83D\uDD0D")
                 .setCallbackData(SIMILAR + "&" + parsedCommand.getText()));
         rowsInline.add(rowInline);
