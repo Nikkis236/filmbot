@@ -1,5 +1,10 @@
 package com.tg.filmbot.handler;
 
+import com.omertron.themoviedbapi.MovieDbException;
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
+import com.omertron.themoviedbapi.model.media.MediaCreditList;
+import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import com.tg.filmbot.bot.Bot;
 import com.tg.filmbot.command.Command;
 import com.tg.filmbot.command.ParsedCommand;
@@ -203,6 +208,7 @@ public class MovieHandler extends AbstractHandler {
         sendMessage.setChatId(chatID);
         sendMessage.enableMarkdown(true);
 
+
         TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
         MovieDb movie = movies.getMovie(Integer.parseInt(parsedCommand.getText()), "ru");
 
@@ -220,12 +226,16 @@ public class MovieHandler extends AbstractHandler {
                     .append(" [/genre_").append(genre.getId()).append("]((/genre_").append(genre.getId()).append(")) ");
         }
 
-        if (movie.getCredits() != null) {
+        try {
+            TheMovieDbApi api = new TheMovieDbApi("2ca681c09cdd54b6787ed999243219d9");
+            MediaCreditList movieCredits = api.getMovieCredits(Integer.parseInt(parsedCommand.getText()));
             text.append(END_LINE).append("Актёры: ");
-            for (PersonCast actor : movie.getCast()) {
+            for(MediaCreditCast actor: movieCredits.getCast().subList(0,10)){
                 text.append(actor.getName())
                         .append(" [/person").append(actor.getId()).append("](/person").append(actor.getId()).append(")) ");
             }
+        } catch (MovieDbException e) {
+            log.error(e);
         }
 
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
