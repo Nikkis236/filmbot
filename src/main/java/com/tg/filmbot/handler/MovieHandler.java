@@ -203,7 +203,6 @@ public class MovieHandler extends AbstractHandler {
         sendMessage.setChatId(chatID);
         sendMessage.enableMarkdown(true);
 
-
         TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
         MovieDb movie = movies.getMovie(Integer.parseInt(parsedCommand.getText()), "ru");
 

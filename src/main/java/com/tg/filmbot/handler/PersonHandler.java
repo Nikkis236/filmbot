@@ -35,7 +35,6 @@ public class PersonHandler extends AbstractHandler {
         sendMessage.setChatId(chatID);
         sendMessage.enableMarkdown(true);
 
-
         TmdbPeople tmdbPeople = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getPeople();
 
         StringBuilder text = new StringBuilder();
