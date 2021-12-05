@@ -4,7 +4,6 @@ import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.media.MediaCreditList;
-import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import com.tg.filmbot.bot.Bot;
 import com.tg.filmbot.command.Command;
 import com.tg.filmbot.command.ParsedCommand;
@@ -16,7 +15,6 @@ import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.model.Genre;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
-import info.movito.themoviedbapi.model.people.PersonCast;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -36,11 +34,9 @@ public class MovieHandler extends AbstractHandler {
     private static final String BOOKMARK = "/movie_bookmark";
     private static final String SIMILAR = "/movie_similar";
     private static final String BOOKMARK_REMOVE = " /movie_bookmarkRemove";
-
-    private static int popularMoviePage = 1;
     private static final String END_LINE = "\n";
-
-    private DAOProvider provider = DAOProvider.getInstance();
+    private static int popularMoviePage = 1;
+    private final DAOProvider provider = DAOProvider.getInstance();
 
     public MovieHandler(Bot bot) {
         super(bot);
@@ -82,6 +78,9 @@ public class MovieHandler extends AbstractHandler {
             switch (command) {
                 case POPULAR:
                     bot.sendQueue.add(getMessagePopular(chatId));
+                    break;
+                case TOPMOVIES:
+                    bot.sendQueue.add(getMessageTop(chatId));
                     break;
                 case MOVIE:
                     bot.sendQueue.add(getMessageMovie(chatId, parsedCommand));
@@ -135,6 +134,7 @@ public class MovieHandler extends AbstractHandler {
                     .append(END_LINE);
         }
 
+        sendMessage.setReplyMarkup(this.getKeyboard());
         return sendMessage.setText(text.toString());
     }
 
@@ -163,6 +163,7 @@ public class MovieHandler extends AbstractHandler {
                         .append(END_LINE);
 
             }
+            sendMessage.setReplyMarkup(this.getKeyboard());
             return sendMessage.setText(text.toString());
         }
     }
@@ -202,6 +203,29 @@ public class MovieHandler extends AbstractHandler {
         return sendMessage.setText(text.toString());
     }
 
+    private SendMessage getMessageTop(String chatID) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatID);
+        sendMessage.enableMarkdown(true);
+
+        StringBuilder text = new StringBuilder().append("Лучшие фильмы:").append(END_LINE);
+
+        TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+        MovieResultsPage moviePage = movies.getTopRatedMovies("ru", 1);
+        for (MovieDb movie : moviePage.getResults()) {
+            text.append("-")
+                    .append(movie.getTitle())
+                    .append(" (")
+                    .append(movie.getReleaseDate()).append(", ")
+                    .append(movie.getVoteAverage()).append(", ")
+                    .append(" [/movie_").append(movie.getId()).append("](/movie_").append(movie.getId()).append("))")
+                    .append(END_LINE);
+        }
+
+        sendMessage.setReplyMarkup(this.getKeyboard());
+        return sendMessage.setText(text.toString());
+    }
+
 
     private SendMessage getMessageMovie(String chatID, ParsedCommand parsedCommand) {
         SendMessage sendMessage = new SendMessage();
@@ -230,9 +254,9 @@ public class MovieHandler extends AbstractHandler {
             TheMovieDbApi api = new TheMovieDbApi("2ca681c09cdd54b6787ed999243219d9");
             MediaCreditList movieCredits = api.getMovieCredits(Integer.parseInt(parsedCommand.getText()));
             text.append(END_LINE).append("Актёры: ");
-            for(MediaCreditCast actor: movieCredits.getCast().subList(0,10)){
+            for (MediaCreditCast actor : movieCredits.getCast().subList(0, 10)) {
                 text.append(actor.getName())
-                        .append(" [/person").append(actor.getId()).append("](/person").append(actor.getId()).append(")) ");
+                        .append(" [/person_").append(actor.getId()).append("](/person_").append(actor.getId()).append(")) ");
             }
         } catch (MovieDbException e) {
             log.error(e);

@@ -21,7 +21,7 @@ public final class DBResourceManager {
      *
      * @return {@link DBResourceManager} instance
      */
-    public static DBResourceManager getInstance(){
+    public static DBResourceManager getInstance() {
         return instance;
     }
 
@@ -31,13 +31,14 @@ public final class DBResourceManager {
      * @param key {@link String} parameter name
      * @return {@link String} parameter value
      */
-    public String getValue(String key){
+    public String getValue(String key) {
         return bundle.getString(key);
     }
 
 
     /**
      * Set bundle
+     *
      * @param bundleFile bundle file name
      */
     public void setBundle(String bundleFile) {

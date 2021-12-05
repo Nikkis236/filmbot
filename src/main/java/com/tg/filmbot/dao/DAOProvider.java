@@ -9,16 +9,17 @@ public final class DAOProvider {
     /**
      * Instance of {@link DAOProvider}
      */
-    private static DAOProvider instance = new DAOProvider();
+    private static final DAOProvider instance = new DAOProvider();
+    private final BookMarkDAO bookMarkDAO = new BookMarkDAO();
 
-    private DAOProvider(){}
+    private DAOProvider() {
+    }
 
-    public static DAOProvider getInstance(){
+    public static DAOProvider getInstance() {
         return instance;
     }
 
-    private BookMarkDAO bookMarkDAO = new BookMarkDAO();
-
-
-    public BookMarkDAO getBookmarkDAO() {return bookMarkDAO;}
+    public BookMarkDAO getBookmarkDAO() {
+        return bookMarkDAO;
+    }
 }

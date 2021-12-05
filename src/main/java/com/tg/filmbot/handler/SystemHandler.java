@@ -7,12 +7,6 @@ import com.tg.filmbot.command.ParsedCommand;
 import org.apache.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SystemHandler extends AbstractHandler {
     private static final Logger log = Logger.getLogger(SystemHandler.class);
@@ -51,31 +45,8 @@ public class SystemHandler extends AbstractHandler {
 
 
         sendMessage.setText(text.toString());
+        sendMessage.setReplyMarkup(this.getKeyboard());
 
-
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        sendMessage.setReplyMarkup(replyKeyboardMarkup);
-
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
-
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow popularFilmsKey = new KeyboardRow();
-        KeyboardRow helpKey = new KeyboardRow();
-        KeyboardRow personsKey = new KeyboardRow();
-        KeyboardRow bookmarks = new KeyboardRow();
-
-        popularFilmsKey.add(new KeyboardButton("/popular"));
-        popularFilmsKey.add(new KeyboardButton("/genres"));
-        personsKey.add(new KeyboardButton("/toppersons"));
-        bookmarks.add(new KeyboardButton("/bookmarks"));
-
-        keyboard.add(popularFilmsKey);
-        keyboard.add(personsKey);
-        keyboard.add(bookmarks);
-
-        replyKeyboardMarkup.setKeyboard(keyboard);
         return sendMessage;
     }
 
@@ -87,6 +58,7 @@ public class SystemHandler extends AbstractHandler {
         text.append("Hello. I'm  *").append(bot.getBotName()).append("*").append(END_LINE);
         text.append("All that I can do - you can see calling the command [/help](/help)");
         sendMessage.setText(text.toString());
+        sendMessage.setReplyMarkup(this.getKeyboard());
         return sendMessage;
     }
 }

@@ -29,6 +29,7 @@ public class Bookmark {
         this.movieId = movieId;
     }
 
-    public Bookmark(){}
+    public Bookmark() {
+    }
 
 }

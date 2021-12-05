@@ -20,19 +20,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Component
 public class Bot extends TelegramLongPollingBot {
     private static final Logger log = Logger.getLogger(Bot.class);
+    public final Queue<Object> sendQueue = new ConcurrentLinkedQueue<>();
+    public final Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
     private final int RECONNECT_PAUSE = 10000;
-
     @Setter
     @Getter
     private String botName;
-
     @Setter
     private String botToken;
-
-    public final Queue<Object> sendQueue = new ConcurrentLinkedQueue<>();
-    public final Queue<Object> receiveQueue = new ConcurrentLinkedQueue<>();
-
-
 
     @Override
     public void onUpdateReceived(Update update) {

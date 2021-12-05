@@ -8,7 +8,9 @@ public enum Command {
     MOVIE,
     GENRE,
     GENRES,
+    PERSON,
     TOPPERSONS,
+    TOPMOVIES,
     BOOKMARKS,
     START
 }

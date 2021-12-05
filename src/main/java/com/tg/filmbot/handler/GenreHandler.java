@@ -53,6 +53,7 @@ public class GenreHandler extends AbstractHandler {
 
         }
 
+        sendMessage.setReplyMarkup(this.getKeyboard());
         return sendMessage.setText(text.toString());
     }
 
@@ -77,6 +78,7 @@ public class GenreHandler extends AbstractHandler {
                     .append(END_LINE);
         }
 
+        sendMessage.setReplyMarkup(this.getKeyboard());
         return sendMessage.setText(text.toString());
     }
 }

@@ -7,12 +7,15 @@ import com.tg.filmbot.dao.connection.impl.ConnectionPoolImpl;
  */
 public final class PoolProvider {
 
-    private PoolProvider() {}
-
     /**
      * Instance of {@link PoolProvider}
      */
-    private static ConnectionPool  connectionPool = new ConnectionPoolImpl();
+    private static final ConnectionPool connectionPool = new ConnectionPoolImpl();
 
-    public static ConnectionPool getConnectionPool() { return connectionPool;}
+    private PoolProvider() {
+    }
+
+    public static ConnectionPool getConnectionPool() {
+        return connectionPool;
+    }
 }

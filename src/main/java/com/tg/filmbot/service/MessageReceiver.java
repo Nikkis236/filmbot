@@ -12,7 +12,6 @@ import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 
-
 import static java.util.Optional.ofNullable;
 
 @Component
@@ -97,10 +96,12 @@ public class MessageReceiver implements Runnable {
             case GENRES:
             case GENRE:
                 return new GenreHandler(bot);
+            case TOPMOVIES:
             case POPULAR:
             case BOOKMARKS:
             case MOVIE:
                 return new MovieHandler(bot);
+            case PERSON:
             case TOPPERSONS:
                 return new PersonHandler(bot);
             default:
