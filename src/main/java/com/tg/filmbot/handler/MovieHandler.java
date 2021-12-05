@@ -20,7 +20,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,29 +91,69 @@ public class MovieHandler extends AbstractHandler {
                 case BOOKMARKS:
                     bot.sendQueue.add(getBookmarksMovie(chatId));
                     break;
+                case MOVIES:
+                    bot.sendQueue.add(getMovieKeyboard(chatId));
+                    break;
             }
         }
         return "";
     }
 
+    private Object getMovieKeyboard(String chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.enableMarkdown(true);
+        sendMessage.setReplyMarkup(getKeyboard());
+
+        return  sendMessage.setText("Что дальше?");
+    }
+
+    @Override
+    public ReplyKeyboardMarkup getKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow popularFilmsKey = new KeyboardRow();
+        KeyboardRow returnKey = new KeyboardRow();
+
+        popularFilmsKey.add(new KeyboardButton("/popular"));
+        popularFilmsKey.add(new KeyboardButton("/topmovies"));
+        returnKey.add(new KeyboardButton("/return"));
+
+        keyboard.add(popularFilmsKey);
+        keyboard.add(returnKey);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+
+        return replyKeyboardMarkup;
+    }
+
     private Object removeFromBookmark(String chatId, String movieId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.enableMarkdown(true);
+
         BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
-        bookmarkDAO.deleteBookmark(chatId, movieId);
-
-        ParsedCommand parsedCommand = new ParsedCommand();
-        parsedCommand.setText(movieId);
-
-        return getMessageMovie(chatId, parsedCommand);
+        if(bookmarkDAO.isInBookmarks(chatId,movieId)) {
+            bookmarkDAO.deleteBookmark(chatId, movieId);
+            return sendMessage.setText("Успешно удалено!");
+        } else {
+            return sendMessage.setText("Выберите что-нибудь другое...");
+        }
     }
 
     private SendMessage addToBookmark(String chatId, String movieId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.enableMarkdown(true);
+
         BookMarkDAO bookmarkDAO = provider.getBookmarkDAO();
-        bookmarkDAO.save(new Bookmark(chatId, movieId));
-
-        ParsedCommand parsedCommand = new ParsedCommand();
-        parsedCommand.setText(movieId);
-
-        return getMessageMovie(chatId, parsedCommand);
+        if(bookmarkDAO.isInBookmarks(chatId,movieId)){
+            return sendMessage.setText("Уже присутствует в ваших закладках. Выберите что нибудь другое!");
+        } else {
+            bookmarkDAO.save(new Bookmark(chatId, movieId));
+            return sendMessage.setText("Успешно добавлено в ваши закладки!");
+        }
     }
 
 
@@ -121,7 +164,7 @@ public class MovieHandler extends AbstractHandler {
 
         StringBuilder text = new StringBuilder().append("Похожие фильмы :").append(END_LINE);
 
-        TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+        TmdbMovies movies = new TmdbApi(API_KEY).getMovies();
         MovieResultsPage moviePage = movies
                 .getSimilarMovies(Integer.parseInt(info), "ru", 1);
         for (MovieDb movie : moviePage.getResults()) {
@@ -134,7 +177,7 @@ public class MovieHandler extends AbstractHandler {
                     .append(END_LINE);
         }
 
-        sendMessage.setReplyMarkup(this.getKeyboard());
+        sendMessage.setReplyMarkup(getKeyboard());
         return sendMessage.setText(text.toString());
     }
 
@@ -151,7 +194,7 @@ public class MovieHandler extends AbstractHandler {
         } else {
             StringBuilder text = new StringBuilder().append("Ваши закладки:").append(END_LINE);
 
-            TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+            TmdbMovies movies = new TmdbApi(API_KEY).getMovies();
             for (String movieId : allMovieByChat) {
                 MovieDb moviePage = movies.getMovie(Integer.parseInt(movieId), "ru");
                 text.append("-")
@@ -163,7 +206,7 @@ public class MovieHandler extends AbstractHandler {
                         .append(END_LINE);
 
             }
-            sendMessage.setReplyMarkup(this.getKeyboard());
+            sendMessage.setReplyMarkup(getKeyboard());
             return sendMessage.setText(text.toString());
         }
     }
@@ -175,7 +218,7 @@ public class MovieHandler extends AbstractHandler {
 
         StringBuilder text = new StringBuilder().append("Популярное сейчас:").append(END_LINE);
 
-        TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+        TmdbMovies movies = new TmdbApi(API_KEY).getMovies();
         MovieResultsPage moviePage = movies.getPopularMovies("ru", popularMoviePage);
         for (MovieDb movie : moviePage.getResults()) {
             text.append("-")
@@ -210,7 +253,7 @@ public class MovieHandler extends AbstractHandler {
 
         StringBuilder text = new StringBuilder().append("Лучшие фильмы:").append(END_LINE);
 
-        TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+        TmdbMovies movies = new TmdbApi(API_KEY).getMovies();
         MovieResultsPage moviePage = movies.getTopRatedMovies("ru", 1);
         for (MovieDb movie : moviePage.getResults()) {
             text.append("-")
@@ -222,9 +265,10 @@ public class MovieHandler extends AbstractHandler {
                     .append(END_LINE);
         }
 
-        sendMessage.setReplyMarkup(this.getKeyboard());
+        sendMessage.setReplyMarkup(getKeyboard());
         return sendMessage.setText(text.toString());
     }
+
 
 
     private SendMessage getMessageMovie(String chatID, ParsedCommand parsedCommand) {
@@ -233,7 +277,7 @@ public class MovieHandler extends AbstractHandler {
         sendMessage.enableMarkdown(true);
 
 
-        TmdbMovies movies = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getMovies();
+        TmdbMovies movies = new TmdbApi(API_KEY).getMovies();
         MovieDb movie = movies.getMovie(Integer.parseInt(parsedCommand.getText()), "ru");
 
         StringBuilder text = new StringBuilder();
@@ -251,10 +295,12 @@ public class MovieHandler extends AbstractHandler {
         }
 
         try {
-            TheMovieDbApi api = new TheMovieDbApi("2ca681c09cdd54b6787ed999243219d9");
+            TheMovieDbApi api = new TheMovieDbApi(API_KEY);
             MediaCreditList movieCredits = api.getMovieCredits(Integer.parseInt(parsedCommand.getText()));
             text.append(END_LINE).append("Актёры: ");
-            for (MediaCreditCast actor : movieCredits.getCast().subList(0, 10)) {
+            List<MediaCreditCast> creditCasts = movieCredits.getCast().size() > 10 ?
+                    movieCredits.getCast().subList(0, 10) : movieCredits.getCast();
+            for (MediaCreditCast actor : creditCasts) {
                 text.append(actor.getName())
                         .append(" [/person_").append(actor.getId()).append("](/person_").append(actor.getId()).append(")) ");
             }

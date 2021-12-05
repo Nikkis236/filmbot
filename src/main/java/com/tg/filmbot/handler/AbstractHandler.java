@@ -14,6 +14,8 @@ import java.util.List;
 
 @Component
 public abstract class AbstractHandler {
+
+    protected static final String API_KEY = "2ca681c09cdd54b6787ed999243219d9";
     Bot bot;
 
     AbstractHandler(Bot bot) {
@@ -31,12 +33,11 @@ public abstract class AbstractHandler {
 
         List<KeyboardRow> keyboard = new ArrayList<>();
         KeyboardRow popularFilmsKey = new KeyboardRow();
-        KeyboardRow helpKey = new KeyboardRow();
         KeyboardRow personsKey = new KeyboardRow();
         KeyboardRow bookmarks = new KeyboardRow();
 
-        popularFilmsKey.add(new KeyboardButton("/popular"));
-        popularFilmsKey.add(new KeyboardButton("/topmovies"));
+        popularFilmsKey.add(new KeyboardButton("/movies"));
+        personsKey.add(new KeyboardButton("/tvseries"));
         popularFilmsKey.add(new KeyboardButton("/genres"));
         personsKey.add(new KeyboardButton("/toppersons"));
         bookmarks.add(new KeyboardButton("/bookmarks"));

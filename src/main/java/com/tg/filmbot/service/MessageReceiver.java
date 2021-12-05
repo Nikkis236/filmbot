@@ -89,6 +89,7 @@ public class MessageReceiver implements Runnable {
         }
         switch (command) {
             case START:
+            case RETURN:
             case HELP:
                 SystemHandler systemHandler = new SystemHandler(bot);
                 log.info("Handler for command[" + command + "] is: " + systemHandler);
@@ -96,6 +97,7 @@ public class MessageReceiver implements Runnable {
             case GENRES:
             case GENRE:
                 return new GenreHandler(bot);
+            case MOVIES:
             case TOPMOVIES:
             case POPULAR:
             case BOOKMARKS:
@@ -104,6 +106,11 @@ public class MessageReceiver implements Runnable {
             case PERSON:
             case TOPPERSONS:
                 return new PersonHandler(bot);
+            case POPULARTVSERIES:
+            case TOPTVSERIES:
+            case SERIES:
+            case TVSERIES:
+                return new TVSeriesHandler(bot);
             default:
                 log.info("Handler for command[" + command + "] not Set. Return DefaultHandler");
                 return new DefaultHandler(bot);

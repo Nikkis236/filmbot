@@ -27,8 +27,19 @@ public class SystemHandler extends AbstractHandler {
             case HELP:
                 bot.sendQueue.add(getMessageHelp(chatId));
                 break;
+            case RETURN:
+                bot.sendQueue.add(getMainKeyBoard(chatId));
+                break;
         }
         return "";
+    }
+
+    private Object getMainKeyBoard(String chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.enableMarkdown(true);
+        sendMessage.setReplyMarkup(this.getKeyboard());
+        return sendMessage.setText("Готово!");
     }
 
     private SendMessage getMessageHelp(String chatID) {

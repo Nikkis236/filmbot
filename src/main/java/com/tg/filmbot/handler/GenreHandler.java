@@ -14,7 +14,7 @@ import org.telegram.telegrambots.api.objects.Update;
 
 public class GenreHandler extends AbstractHandler {
     private static final Logger log = Logger.getLogger(SystemHandler.class);
-    private final String END_LINE = "\n";
+    private static final String END_LINE = "\n";
 
     public GenreHandler(Bot bot) {
         super(bot);
@@ -41,7 +41,7 @@ public class GenreHandler extends AbstractHandler {
         sendMessage.enableMarkdown(true);
 
 
-        TmdbGenre tmdbGenre = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getGenre();
+        TmdbGenre tmdbGenre = new TmdbApi(API_KEY).getGenre();
 
         StringBuilder text = new StringBuilder();
         text.append("Список жанров: ");
@@ -64,7 +64,7 @@ public class GenreHandler extends AbstractHandler {
         sendMessage.enableMarkdown(true);
 
 
-        TmdbGenre tmdbGenre = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getGenre();
+        TmdbGenre tmdbGenre = new TmdbApi(API_KEY).getGenre();
         MovieResultsPage moviesPage = tmdbGenre.getGenreMovies(Integer.parseInt(parsedCommand.getText()), "ru", 1, true);
 
         StringBuilder text = new StringBuilder();

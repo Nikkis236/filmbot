@@ -18,7 +18,7 @@ import java.util.List;
 
 public class PersonHandler extends AbstractHandler {
     private static final Logger log = Logger.getLogger(SystemHandler.class);
-    private final String END_LINE = "\n";
+    private static final String END_LINE = "\n";
 
     public PersonHandler(Bot bot) {
         super(bot);
@@ -44,7 +44,7 @@ public class PersonHandler extends AbstractHandler {
         sendMessage.setChatId(chatID);
         sendMessage.enableMarkdown(true);
 
-        TmdbPeople tmdbPeople = new TmdbApi("2ca681c09cdd54b6787ed999243219d9").getPeople();
+        TmdbPeople tmdbPeople = new TmdbApi(API_KEY).getPeople();
 
         StringBuilder text = new StringBuilder();
         text.append("Известные люди: ");
@@ -67,7 +67,7 @@ public class PersonHandler extends AbstractHandler {
         StringBuilder text = new StringBuilder();
 
         try {
-            TheMovieDbApi api = new TheMovieDbApi("2ca681c09cdd54b6787ed999243219d9");
+            TheMovieDbApi api = new TheMovieDbApi(API_KEY);
 
             PersonCreditList<CreditMovieBasic> personCreditList = api.getPersonMovieCredits(Integer.parseInt(personId), "ru");
             List<CreditMovieBasic> movies = personCreditList.getCast();
